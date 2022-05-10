@@ -89,4 +89,4 @@ while True:
 		vArduino.close()
 	if ser.readline().decode('utf-8').rstrip() == "CORRENTE"
 '''
-#histo = ROOT.THD1("dist","title", 50, 0, 5
+#histo = ROOT.THD1("dist","title", 50, 0, 5)
