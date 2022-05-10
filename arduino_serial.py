@@ -2,6 +2,10 @@ import serial
 import time
 import ROOT
 import numpy as np
+import uncertainties
+from uncertainties import ufloat
+import math
+
 
 #begin serial
 ser = serial.Serial('/dev/ttyACM0', 9600)
@@ -74,6 +78,56 @@ while True:
 			vHall.close()
 			for word in data.split():
 				vHallArray = np.append(vHallArray, float(word))
+
+
+
+
+
+
+'''
+alla fine vogliamo trovarci un con un file del tipo:
+
+V_hall B eV_hall eB
+   .   .
+   .   .
+   .   .
+
+
+
+un istogrammi con V_hall_+ - V_hall_- /2 cosi da avere V_hall e uno con V_hall_+ + V_hall_- /2 
+cosi da avere V_long che dipenda da B^2
+
+con B = (N*I)*mu/(l_m+(mu/mu_0)*l_t) , l'errore di b lo calcoliamo con la propagazione
+degli errroi, V_hall viene furoi dall'istogramma e il suo errore lo calcoliamo con deviazione
+standard
+
+
+cosa ci facciamo dei valori di V_ard? li usiamo in quelche modo con i dati ricavati dalla
+caratterizzazione del generatore di corrente.
+
+'''
+
+
+
+
+
+bfile = open("B.dat","a")
+
+i = [ ]
+i.append(I) #da mettere nel ciclo che legge I
+for l in i:
+	mu = 1000
+	mu_0 = 4*pi*10**(-7)
+	l_t = ufloat( "METTI IL VALORE" , "METTI INCERTEZZA" )
+	l_m = ufloat( "METTI IL VALORE" , "METTI INCERTEZZA" )
+	B = (N*l)*mu/(l_m+(mu/mu_0)*l_t) #N,mu,mu_0,l_m,l_t sono tutti parametri del magente che ci troviamo
+
+	w =  "{} + " " {} +  " " +/n".format(B.n,B.s)
+	bfile.write(w)
+
+
+
+
 
 '''
 stato = 0
