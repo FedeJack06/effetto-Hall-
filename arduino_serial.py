@@ -61,8 +61,7 @@ l_m = ufloat( l_m_n , l_m_s )
 
 #APERTURA FILE 
 
-output = open("IvsVh", "a")
-out_v_hall = open("Vhall.dat", "a")
+output = open("Vhall", "a")   #file con i Vhall mediato (sono M valori)
 plot_rough = open("plotV_HvsB_schifo.dat" , "a")   #schifo perche non c'è la correzione su B long e cose
 
 #CICLO LETTURA E CALCOLI
@@ -77,11 +76,11 @@ while True:
 		print ("corr " + I)
 		stato = 0
 
-		#CALCOLO CAMPO MAGNETICO NELL'ELETTROMAGNETE DALLA CORRENTE
+		###CALCOLO CAMPO MAGNETICO NELL'ELETTROMAGNETE DALLA CORRENTE
 
 		B_rough = (N*I)*mu/(l_m+(mu/mu_0)*l_t)    #restituisce una cosa del tipo B +- eB
 		B = B_rough.n
-		eB = B_rough.s/np.sqrt(3)    #statisticizzazione errore di B
+		eB = B_rough.s/np.sqrt(3)    #calcolo e statisticizzazione errore di B
 
 	vArduino = open("vArduino"+ str(I) +".dat", "a")
 	vHall = open("vHall" + str(I) + ".dat", "a")
@@ -99,7 +98,7 @@ while True:
 			for word in data.split():
 				vArdArray = np.append(vArdArray, float(word))
 			
-			#CALCOLO LA MEDIA SULLA TENSIONE DI ARDUINO DI N VALORI MISURATI (SPERO)
+			###CALCOLO LA MEDIA SULLA TENSIONE DI ARDUINO DI N VALORI MISURATI (SPERO)
 		
 			mediaVarduino_suN = np.mean(vArdArray)  #ancora non so bene cosa farci
 			devStdVard_suN = np.std(vArdArray)
@@ -115,12 +114,9 @@ while True:
 
 			#TENISONE DI HALL
 
-			"""
-			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
-			output.write(str(I) + " " + str(mediaVhall_suN) + " " + str(mediaVarduino_suN) + " " + str(devStdVard_suN) + " " + str(devStdVh_suN) + "\n")
 			
-			out_v_hall.write(mediaVhall_suN + "/n") #scrivo M vhall medio in un file per ogni I
-			"""
+			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
+			output.write(str(mediaVhall_suN) + "\n")
 
 			#PARTE DI ROOT
 
@@ -154,7 +150,7 @@ while True:
 			h.Fill(mediaVhall_suN)
 
 			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
-			output.write(str(I) + " " + str(mediaVhall_suN) + " " + str(mediaVarduino_suN) + " " + str(devStdVard_suN) + " " + str(devStdVh_suN) + "\n")
+			output.write(str(mediaVhall_suN) + "\n")
 			ser.close()
 			break
 		elif data == "VARD":
