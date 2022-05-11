@@ -1,5 +1,6 @@
 import string
 from tokenize import String
+from matplotlib.pyplot import plot
 import serial
 import time
 import ROOT
@@ -22,6 +23,9 @@ s =1
 ## PREOCESSING
 
 I = 0
+
+#MEDIA SU N MSIURE
+
 mediaVarduino_suN = 0
 mediaVhall_suN = 0
 devStdVard_suN = 0
@@ -29,8 +33,17 @@ devStdVh_suN = 0
 vArdArray = np.array([])
 vHallArray = np.array([])
 
+#MEDIA SU M MISURE DI N MISURE (PRENDIAMO I VALORI MEDI DI N MISURE E LI METTIAMO IN UN ISTOGRAMMA) SOLO PER V HALL
 
-#COSTANTI
+mediaVarduino_suM = 0
+mediaVhall_suM = 0
+devStdVard_suM = 0
+devStdVh_suM = 0
+vArdArray_M = np.array([])
+vHallArray_M = np.array([])
+
+
+#COSTANTI PER IL CALCOLO DI B
 
 N = 1000    #numero di spire elettromagnete
 mu = 1000
@@ -80,8 +93,11 @@ while True:
 			
 			#CALCOLO LA MEDIA SULLA TENSIONE DI ARDUINO DI N VALORI MISURATI (SPERO)
 		
-			mediaVarduino_suN = np.mean(vArdArray)
+			mediaVarduino_suN = np.mean(vArdArray)  #ancora non so bene cosa farci
 			devStdVard_suN = np.std(vArdArray)
+
+			vArdArray_M = np.append(vArdArray_M, float(mediaVarduino_suN)) 
+
 	if stato == 2:
 		data = ser.readline().decode('utf-8').rstrip()
 		print (data)
@@ -89,41 +105,46 @@ while True:
 		if data == "CORRENTE":
 			stato = 3
 
-			#TENSIONE IN USCITA DA ARUDINO
-
-
 			#TENISONE DI HALL
 
 			"""
 			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
 			output.write(str(I) + " " + str(mediaVhall_suN) + " " + str(mediaVarduino_suN) + " " + str(devStdVard_suN) + " " + str(devStdVh_suN) + "\n")
-			"""
+			
 			out_v_hall.write(mediaVhall_suN + "/n") #scrivo M vhall medio in un file per ogni I
+			"""
 
 			#PARTE DI ROOT
 
-			"""
 			h = "h{}".format(I) 
 			c = "c{}".format(I)
-			c = ROOT.TCanvas("c", "tensione di hall")
+			c = ROOT.TCanvas("c", "tensione di hall grezza")
 			h = ROOT.TH1D("isto", "up" , 20) 
-			h.Fill(mediaVhall)
 			c.Draw()
 			h.Draw()
 			name_isto = "istoV_hall{}.jpg".format(I)
 			c.SaveAs(name_isto)
 			V_hall_mean = h.GetMean() 
 			V_hall_dev = h.GetStdDev()
-			"""
+
+			#SCRIVO I RISLUATI IN UN FILE DEL TIPO V_HALL B eV_HALL eB
+
+			plot_rough.write(V_hall_mean + B + " " + V_hall_dev + " " + eB)
 
 		elif data == "BREAK":
-			mediaVarduino = np.mean(vArdArray)
-			devStdVard = np.std(vArdArray)
-			print("Vard: " + str(mediaVarduino) + "+/-" + str(devStdVard))
-			mediaVhall = np.mean(vHallArray)
-			devStdVh = np.std(vHallArray)
-			print("Vh: " + str(mediaVhall)+ "+/-" + str(devStdVh))
-			output.write(str(I) + " " + str(mediaVhall) + " " + str(mediaVarduino) + " " + str(devStdVard) + " " + str(devStdVh) + "\n")
+			mediaVarduino_suN = np.mean(vArdArray)
+			devStdVard_suN = np.std(vArdArray)
+
+			vArdArray_M = np.append(vArdArray_M, float(mediaVarduino_suN)) #inutili come l merda ma non sono sicro che lo siano quindi li lascio
+
+			print("Vard: " + str(mediaVarduino_suN) + "+/-" + str(devStdVard_suN))
+			mediaVhall_suN = np.mean(vHallArray)
+			devStdVh_suN = np.std(vHallArray)
+
+			vHallArray_M = np.append(vHallArray_M, float(mediaVhall_suN)) 
+
+			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
+			output.write(str(I) + " " + str(mediaVhall_suN) + " " + str(mediaVarduino_suN) + " " + str(devStdVard_suN) + " " + str(devStdVh_suN) + "\n")
 			ser.close()
 			break
 		elif data == "VARD":
@@ -139,6 +160,14 @@ while True:
 			mediaVhall_suN = np.mean(vHallArray)
 			devStdVh = np.std(vHallArray)
 
+			vHallArray_M = np.append(vHallArray_M, float(mediaVhall_suN))   #inutili come l merda ma non sono sicro che lo siano quindi li lascio
+
+			h.Fill(mediaVhall_suN)
+
+
+		
+			
+
 
 #CHIUSURA FILE
 
@@ -146,7 +175,50 @@ output.close()
 out_v_hall.close()
 vHall.close()
 vArduino.close()
+plot_rough.close()
 
+
+
+
+"""            
+                 _   
+ _ __ ___   ___ | |_ 
+| '__/ _ \ / _ \| __|
+| | | (_) | (_) | |_ 
+|_|  \___/ \___/ \__|
+      
+"""
+
+
+plot1 = open("plotV_HvsB_schifo.dat" , "r")
+line = []
+
+gr = 	ROOT.TGraphErrors
+f = ROOT.TF1("f" ,"[0]+[1]*x + [2]*pow(x,2)")
+
+#NUMERO DI RIGHE NEL FILE 
+
+with open("plotV_HvsB_schifo.dat", 'r') as fp:
+    num_lines = sum(1 for line in fp if line.rstrip())
+
+#AGGIUNGO PUNTI AL GRAFICO
+
+for l in range(0,num_lines):
+	line = (plot1.readline()).split()
+	line_float = [ float(x) for x in line]  
+	hall = line_float [0] 
+	b = line_float[1]
+	ehall = line_float[2]
+	eb = line_float[3]
+	gr.SetPoint(l, b , hall)
+	gr.SetPointError(l, eb , ehall)
+
+
+
+#DISEGNO
+
+gr.Draw("AP") 
+gr.Fit("f")
 
 
 '''
@@ -173,6 +245,11 @@ caratterizzazione del generatore di corrente.
 '''
 
 
+
+
+
+
+
 '''
 stato = 0
 while True:
@@ -187,4 +264,3 @@ while True:
 		vArduino.close()
 	if ser.readline().decode('utf-8').rstrip() == "CORRENTE"
 '''
-#histo = ROOT.THD1("dist","title", 50, 0, 5)
