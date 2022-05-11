@@ -48,8 +48,16 @@ vHallArray_M = np.array([])
 N = 1000    #numero di spire elettromagnete
 mu = 1000
 mu_0 = 4*math.pi*10**(-7)
-l_t = ufloat( "METTI IL VALORE" , "METTI INCERTEZZA" )
-l_m = ufloat( "METTI IL VALORE" , "METTI INCERTEZZA" )
+l1 = ufloat(15e-2,1e-3)
+l2 = ufloat(18e-2,1e-3)
+l3 = ufloat(3e-2 , 1e-3)
+l4 = ufloat(3e-2 , 1e-3)
+l5 = ufloat(6e-2 , 1e-3)
+l_t = ufloat(7e-2 , 5e-5)
+l_m_calc = 3*l1 + 2*l2 - 5*l4 - l_t 
+l_m_n = l_m_calc.n
+l_m_s = l_m_calc.s
+l_m = ufloat( l_m_n , l_m_s )
 
 #APERTURA FILE 
 
