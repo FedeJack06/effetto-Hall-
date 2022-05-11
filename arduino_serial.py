@@ -112,9 +112,6 @@ while True:
 		if data == "CORRENTE":
 			stato = 3
 
-			#TENISONE DI HALL
-
-			
 			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
 			output.write(str(mediaVhall_suN) + "\n")
 
@@ -138,6 +135,8 @@ while True:
 		elif data == "BREAK":
 			mediaVarduino_suN = np.mean(vArdArray)
 			devStdVard_suN = np.std(vArdArray)
+
+			###FORSE è DA AGGIUNGERE ANCHE QUI UNA PARTE DI ISTOGRMMI ORA SONO FUSO E NON CAPISCO SE SERVE O NO 
 
 			vArdArray_M = np.append(vArdArray_M, float(mediaVarduino_suN)) #inutili come l merda ma non sono sicro che lo siano quindi li lascio
 
