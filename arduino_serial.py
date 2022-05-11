@@ -143,6 +143,8 @@ while True:
 
 			vHallArray_M = np.append(vHallArray_M, float(mediaVhall_suN)) 
 
+			h.Fill(mediaVhall_suN)
+
 			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
 			output.write(str(I) + " " + str(mediaVhall_suN) + " " + str(mediaVarduino_suN) + " " + str(devStdVard_suN) + " " + str(devStdVh_suN) + "\n")
 			ser.close()
