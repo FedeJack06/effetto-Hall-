@@ -137,6 +137,7 @@ while True:
 			devStdVard_suN = np.std(vArdArray)
 
 			###FORSE è DA AGGIUNGERE ANCHE QUI UNA PARTE DI ISTOGRMMI ORA SONO FUSO E NON CAPISCO SE SERVE O NO 
+			###nel dubbio l ho aggiunto poi vedremo
 
 			vArdArray_M = np.append(vArdArray_M, float(mediaVarduino_suN)) #inutili come l merda ma non sono sicro che lo siano quindi li lascio
 
@@ -145,6 +146,18 @@ while True:
 			devStdVh_suN = np.std(vHallArray)
 
 			vHallArray_M = np.append(vHallArray_M, float(mediaVhall_suN)) 
+
+
+			h = "h{}".format(I) 
+			c = "c{}".format(I)
+			c = ROOT.TCanvas("c", "tensione di hall grezza")
+			h = ROOT.TH1D("isto", "up" , 20) 
+			c.Draw()
+			h.Draw()
+			name_isto = "istoV_hall{}.jpg".format(I)
+			c.SaveAs(name_isto)
+			V_hall_mean = h.GetMean() 
+			V_hall_dev = h.GetStdDev()
 
 			h.Fill(mediaVhall_suN)
 
@@ -199,7 +212,7 @@ plot1 = open("plotV_HvsB_schifo.dat" , "r")
 line = []
 
 gr = 	ROOT.TGraphErrors
-f = ROOT.TF1("f" ,"[0]+[1]*x + [2]*pow(x,2)")
+f = ROOT.TF1("f" ,"[0] + [1] * x + [2] * pow(x,2)")
 
 #NUMERO DI RIGHE NEL FILE 
 
