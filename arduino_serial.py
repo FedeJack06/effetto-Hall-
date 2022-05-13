@@ -66,6 +66,8 @@ plot_rough = open("plotV_HvsB_schifo.dat" , "a")   #schifo perche non c'è la co
 
 #CICLO LETTURA E CALCOLI
 
+
+
 while True:
 	#### INPUT DATI DA ARDUINO
 	if stato == 0:
@@ -78,10 +80,12 @@ while True:
 
 		###CALCOLO CAMPO MAGNETICO NELL'ELETTROMAGNETE DALLA CORRENTE
 
-		B_rough = (N*I)*mu/(l_m+(mu/mu_0)*l_t)    #restituisce una cosa del tipo B +- eB
+		B_rough = (N*float(I))*mu/(l_m+(mu/mu_0)*l_t)    #restituisce una cosa del tipo B +- eB
 		B = B_rough.n
 		eB = B_rough.s/np.sqrt(3)    #calcolo e statisticizzazione errore di B
 
+		c = ROOT.TCanvas("c", "tensione di hall grezza")
+		h = ROOT.TH1D("isto", "up" , 20, 0, 5)
 	vArduino = open("vArduino"+ str(I) +".dat", "a")
 	vHall = open("vHall" + str(I) + ".dat", "a")
 	if data == "VARD":
@@ -117,11 +121,10 @@ while True:
 
 			#PARTE DI ROOT
 
-			h = "h{}".format(I) 
-			c = "c{}".format(I)
-			c = ROOT.TCanvas("c", "tensione di hall grezza")
-			h = ROOT.TH1D("isto", "up" , 20) 
-			c.Draw()
+			#global h = "h{}".format(I) 
+			#global c = "c{}".format(I)
+			 
+			c.cd()
 			h.Draw()
 			name_isto = "istoV_hall{}.jpg".format(I)
 			c.SaveAs(name_isto)
@@ -130,7 +133,7 @@ while True:
 
 			#SCRIVO I RISLUATI IN UN FILE DEL TIPO V_HALL B eV_HALL eB
 
-			plot_rough.write(V_hall_mean + B + " " + V_hall_dev + " " + eB)
+			plot_rough.write(str(V_hall_mean) + str(B) + " " + str(V_hall_dev) + " " + str(eB))
 
 		elif data == "BREAK":
 			mediaVarduino_suN = np.mean(vArdArray)
@@ -148,11 +151,11 @@ while True:
 			vHallArray_M = np.append(vHallArray_M, float(mediaVhall_suN)) 
 
 
-			h = "h{}".format(I) 
-			c = "c{}".format(I)
-			c = ROOT.TCanvas("c", "tensione di hall grezza")
-			h = ROOT.TH1D("isto", "up" , 20) 
-			c.Draw()
+			#h = "h{}".format(I) 
+			#c = "c{}".format(I)
+			#c = ROOT.TCanvas("c", "tensione di hall grezza")
+			#h = ROOT.TH1D("isto", "up" , 20) 
+			c.cd()
 			h.Draw()
 			name_isto = "istoV_hall{}.jpg".format(I)
 			c.SaveAs(name_isto)
@@ -174,7 +177,7 @@ while True:
 				vHallArray = np.append(vHallArray, float(word))
 
 			#CALCOLO LA MEDIA SU N VALORI MISURATI (SPERO)
-				
+			print("cazzo")
 			mediaVhall_suN = np.mean(vHallArray)
 			devStdVh = np.std(vHallArray)
 
@@ -190,7 +193,7 @@ while True:
 #CHIUSURA FILE
 
 output.close()
-out_v_hall.close()
+
 vHall.close()
 vArduino.close()
 plot_rough.close()
@@ -207,7 +210,7 @@ plot_rough.close()
       
 """
 
-
+'''
 plot1 = open("plotV_HvsB_schifo.dat" , "r")
 line = []
 
@@ -237,7 +240,7 @@ for l in range(0,num_lines):
 
 gr.Draw("AP") 
 gr.Fit("f")
-
+'''
 
 '''
 alla fine vogliamo trovarci un con un file del tipo:
@@ -261,7 +264,6 @@ cosa ci facciamo dei valori di V_ard? li usiamo in quelche modo con i dati ricav
 caratterizzazione del generatore di corrente.
 
 '''
-
 
 
 
