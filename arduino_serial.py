@@ -55,8 +55,14 @@ l_m_s = l_m_calc.s
 l_m = ufloat( l_m_n , l_m_s )
 
 #APERTURA FILE 
-output = open("Vhall", "a")   #file con i Vhall mediato (sono M valori)
-plot_rough = open("plotV_HvsB_schifo.dat" , "a")   #schifo perche non c'è la correzione su B long e cose
+#output = open("I vs Vhall.dat", "w")   #file con i Vhall mediato (sono M valori)
+plot_rough = open("plotV_HvsB_schifo.dat" , "w")   #schifo perche non c'è la correzione su B long e cose
+
+#GRAFICO B vs V_HALL PROGRESSIVO
+gr2 = 	ROOT.TGraphErrors()
+f2 = ROOT.TF1("f" ,"[0] + [1] * x + [2] * pow(x,2)")
+c2 = ROOT.TCanvas("c1", "canvas",1920 , 1080)
+nn = 0 #counter punti
 
 #CICLO LETTURA E CALCOLI
 while True:
@@ -107,13 +113,8 @@ while True:
 			stato = 3
 
 			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
-			output.write(str(mediaVhall_suN) + "\n")
-
-			#PARTE DI ROOT
-
-			#global h = "h{}".format(I) 
-			#global c = "c{}".format(I)
-			 
+			
+			#HISTOGRAMMI
 			c.cd()
 			h.Draw()
 			name_isto = "istoV_hall{}.jpg".format(I)
@@ -124,7 +125,18 @@ while True:
 			#SCRIVO I RISLUATI IN UN FILE DEL TIPO V_HALL B eV_HALL eB
 
 			plot_rough.write(str(V_hall_mean) + " " + str(B) + " " + str(V_hall_dev) + " " + str(eB) +"\n")
-
+			
+			gr2.SetPoint(nn, B, V_hall_mean)
+			gr2.SetPointError(nn, eB, V_hall_dev)
+			if nn==0:
+				c2.cd()
+				gr2.Draw("AP")
+			else:
+				c2.Modified()
+				c2.Update()
+				#ROOT.gPad.Update()
+				#gSystem.ProcessEvents()
+			nn += 1
 		elif data == "BREAK":
 			mediaVarduino_suN = np.mean(vArdArray)
 			devStdVard_suN = np.std(vArdArray)
@@ -140,11 +152,6 @@ while True:
 
 			vHallArray_M = np.append(vHallArray_M, float(mediaVhall_suN)) 
 
-
-			#h = "h{}".format(I) 
-			#c = "c{}".format(I)
-			#c = ROOT.TCanvas("c", "tensione di hall grezza")
-			#h = ROOT.TH1D("isto", "up" , 20) 
 			c.cd()
 			h.Draw()
 			name_isto = "istoV_hall{}.jpg".format(I)
@@ -155,7 +162,7 @@ while True:
 			h.Fill(mediaVhall_suN)
 
 			print("Vh: " + str(mediaVhall_suN)+ "+/-" + str(devStdVh_suN))
-			output.write(str(mediaVhall_suN) + "\n")
+			#output.write(str(I) + " " + str(mediaVhall_suM) + " " + str(mediaVhall_suN) + "\n")
 			ser.close()
 			break
 		elif data == "VARD":
@@ -181,14 +188,11 @@ while True:
 
 #CHIUSURA FILE
 
-output.close()
+#output.close()
 
 vHall.close()
 vArduino.close()
 plot_rough.close()
-
-
-
 
 """            
                  _   
@@ -199,13 +203,24 @@ plot_rough.close()
       
 """
 
+gr2.Fit("f")
+c2.Modified()
+c2.Update()
+c2.SaveAs("B_vs_Vhall.jpg")
 
+while True:
+	cccc =0
+
+
+
+
+'''
 plot1 = open("plotV_HvsB_schifo.dat" , "r")
 line = []
 
 gr = 	ROOT.TGraphErrors()
 f = ROOT.TF1("f" ,"[0] + [1] * x + [2] * pow(x,2)")
-c1 = ROOT.TCanvas("c1")
+c1 = ROOT.TCanvas("c1", "canvas",1920 , 1080)
 #NUMERO DI RIGHE NEL FILE 
 
 with open("plotV_HvsB_schifo.dat", 'r') as fp:
@@ -223,13 +238,15 @@ for l in range(0,num_lines):
 	gr.SetPoint(l, b , hall)
 	gr.SetPointError(l, eb , ehall)
 
-
-
 #DISEGNO
 c1.cd()
+gr.SetTitle("B vs V hall")
+gr.GetXaxis().SetTitle("Campo magnetico [T]")
+gr.GetYaxis().SetTitle("V hall [V]")
 gr.Draw("AP") 
 gr.Fit("f")
 c1.SaveAs("plot_raf.jpg")
+'''
 
 '''
 alla fine vogliamo trovarci un con un file del tipo:
@@ -256,20 +273,3 @@ caratterizzazione del generatore di corrente.
 
 
 
-
-
-
-'''
-stato = 0
-while True:
-	if ser.readline().decode('utf-8').rstrip() == "CORRENTE" and stato == 0: #corrente
-		I = ser.readline().decode('utf-8').rstrip() #0.00
-		vHall = open("vHall" + str(I) + ".dat", "a")
-		stato = 1
-	elif ser.readline().decode('utf-8').rstrip() == "VARD" and stato == 1:
-		vArduino = open("vArduino"+ str(I) +".dat", "a")
-		data = ser.readline().decode('utf-8').rstrip()
-		vArduino.write(data + "\n")
-		vArduino.close()
-	if ser.readline().decode('utf-8').rstrip() == "CORRENTE"
-'''
