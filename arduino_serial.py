@@ -1,3 +1,4 @@
+from ast import While
 import string
 from tokenize import String
 from matplotlib.pyplot import plot
@@ -11,21 +12,17 @@ import math
 
 
 #begin serial
-
 ser = serial.Serial('/dev/ttyACM0', 9600)
 time.sleep(1)
 ser.close()
 time.sleep(1)
 ser.open()
-stato = 0
-s =1
 
 ## PREOCESSING
-
 I = 0
+stato = 0
 
 #MEDIA SU N MSIURE
-
 mediaVarduino_suN = 0
 mediaVhall_suN = 0
 devStdVard_suN = 0
@@ -34,7 +31,6 @@ vArdArray = np.array([])
 vHallArray = np.array([])
 
 #MEDIA SU M MISURE DI N MISURE (PRENDIAMO I VALORI MEDI DI N MISURE E LI METTIAMO IN UN ISTOGRAMMA) SOLO PER V HALL
-
 mediaVarduino_suM = 0
 mediaVhall_suM = 0
 devStdVard_suM = 0
@@ -44,7 +40,6 @@ vHallArray_M = np.array([])
 
 
 #COSTANTI PER IL CALCOLO DI B
-
 N = 1000    #numero di spire elettromagnete
 mu = 1000
 mu_0 = 4*math.pi*10**(-7)
@@ -60,14 +55,10 @@ l_m_s = l_m_calc.s
 l_m = ufloat( l_m_n , l_m_s )
 
 #APERTURA FILE 
-
 output = open("Vhall", "a")   #file con i Vhall mediato (sono M valori)
 plot_rough = open("plotV_HvsB_schifo.dat" , "a")   #schifo perche non c'è la correzione su B long e cose
 
 #CICLO LETTURA E CALCOLI
-
-
-
 while True:
 	#### INPUT DATI DA ARDUINO
 	if stato == 0:
@@ -79,7 +70,6 @@ while True:
 		stato = 0
 
 		###CALCOLO CAMPO MAGNETICO NELL'ELETTROMAGNETE DALLA CORRENTE
-
 		B_rough = (N*float(I))*mu/(l_m+(mu/mu_0)*l_t)    #restituisce una cosa del tipo B +- eB
 		B = B_rough.n
 		eB = B_rough.s/np.sqrt(3)    #calcolo e statisticizzazione errore di B
@@ -128,12 +118,12 @@ while True:
 			h.Draw()
 			name_isto = "istoV_hall{}.jpg".format(I)
 			c.SaveAs(name_isto)
-			V_hall_mean = h.GetMean() 
+			V_hall_mean = h.GetMean()
 			V_hall_dev = h.GetStdDev()
 
 			#SCRIVO I RISLUATI IN UN FILE DEL TIPO V_HALL B eV_HALL eB
 
-			plot_rough.write(str(V_hall_mean) + str(B) + " " + str(V_hall_dev) + " " + str(eB))
+			plot_rough.write(str(V_hall_mean) + " " + str(B) + " " + str(V_hall_dev) + " " + str(eB) +"\n")
 
 		elif data == "BREAK":
 			mediaVarduino_suN = np.mean(vArdArray)
@@ -177,7 +167,6 @@ while True:
 				vHallArray = np.append(vHallArray, float(word))
 
 			#CALCOLO LA MEDIA SU N VALORI MISURATI (SPERO)
-			print("cazzo")
 			mediaVhall_suN = np.mean(vHallArray)
 			devStdVh = np.std(vHallArray)
 
@@ -210,13 +199,13 @@ plot_rough.close()
       
 """
 
-'''
+
 plot1 = open("plotV_HvsB_schifo.dat" , "r")
 line = []
 
-gr = 	ROOT.TGraphErrors
+gr = 	ROOT.TGraphErrors()
 f = ROOT.TF1("f" ,"[0] + [1] * x + [2] * pow(x,2)")
-
+c1 = ROOT.TCanvas("c1")
 #NUMERO DI RIGHE NEL FILE 
 
 with open("plotV_HvsB_schifo.dat", 'r') as fp:
@@ -237,10 +226,10 @@ for l in range(0,num_lines):
 
 
 #DISEGNO
-
+c1.cd()
 gr.Draw("AP") 
 gr.Fit("f")
-'''
+c1.SaveAs("plot_raf.jpg")
 
 '''
 alla fine vogliamo trovarci un con un file del tipo:
