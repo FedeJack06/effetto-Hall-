@@ -1,0 +1,5 @@
+arduino_serial.py 
+--output matrici N x M in file vhall e vArduino
+--calcolo media e dev std di V hall su tutti N x M (dev con istogrammi)
+--grafica B vs V hall
+--genera file B vs Vhall
